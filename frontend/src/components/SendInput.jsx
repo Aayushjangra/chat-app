@@ -2,21 +2,34 @@ import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 import axios from "axios";
 import {useDispatch,useSelector} from "react-redux";
+import { setMessages } from '../redux/messageSlice';
 
 
 const SendInput = () => {
   const [message, setMessage] = useState("");
   const dispatch = useDispatch();
+  const {selectedUser} = useSelector(store=>store.user)
+  const {messages} = useSelector(store=>store.message);
+
+
+  
 
    const onSumbitHandler = async (e)=> {
     e.preventDefault();
     try{
-      const res = await axios.post(`http://localhost:8080/api/v1/message/send/66bc90cdb6abdd9b38fc3cf7`)
+      const res = await axios.post(`http://localhost:8080/api/v1/message/send/${selectedUser?._id}`, {message}, {
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                withCredentials:true
+            });
+            console.log(res);
+           dispatch(setMessages([...messages, res?.data?.newMessage]))
     }catch(error){
       console.log(error);
 
     }
-    alert(message)
+    setMessage("");
    }
   return (
     <form onSubmit={onSumbitHandler} className="px-4 my-3">
